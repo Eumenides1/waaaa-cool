@@ -1,0 +1,12 @@
+go 1.19
+
+use (
+	common
+	connector
+	core
+	framework
+	hall
+	user
+	game
+	gateway
+)
