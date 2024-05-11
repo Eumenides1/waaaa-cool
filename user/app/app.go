@@ -2,6 +2,7 @@ package app
 
 import (
 	"common/config"
+	"common/discovery"
 	"common/logs"
 	"context"
 	"google.golang.org/grpc"
@@ -15,12 +16,17 @@ import (
 // Run 启动程序，启动grpc服务，启动Http服务，加载日志 加载数据库
 func Run(ctx context.Context) error {
 	logs.InitLog(config.Conf.AppName)
+	register := discovery.NewRegister()
 	// 启动grpc服务端
 	server := grpc.NewServer()
 	go func() {
 		lis, err := net.Listen("tcp", config.Conf.Grpc.Addr)
 		if err != nil {
 			logs.Fatal("user grpc server listen err :%v", err)
+		}
+		err = register.Register(config.Conf.Etcd)
+		if err != nil {
+			logs.Fatal("user grpc server register etcd err :%v", err)
 		}
 		// 阻塞操作
 		err = server.Serve(lis)
@@ -31,6 +37,7 @@ func Run(ctx context.Context) error {
 	// 期望有一个优雅启动和停机
 	stop := func() {
 		server.Stop()
+		register.Stop()
 		// other
 		time.Sleep(3 * time.Second)
 		logs.Info("stop app finish")
