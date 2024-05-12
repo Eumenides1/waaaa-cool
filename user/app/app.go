@@ -12,6 +12,8 @@ import (
 	"os/signal"
 	"syscall"
 	"time"
+	"user/internal/service"
+	"user/pb"
 )
 
 // Run 启动程序，启动grpc服务，启动Http服务，加载日志 加载数据库
@@ -31,6 +33,7 @@ func Run(ctx context.Context) error {
 		if err != nil {
 			logs.Fatal("user grpc server register etcd err :%v", err)
 		}
+		pb.RegisterUserServiceServer(server, service.NewAccountService(manager))
 		// 阻塞操作
 		err = server.Serve(lis)
 		if err != nil {
