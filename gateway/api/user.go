@@ -30,13 +30,17 @@ func (u *UserHandler) Register(ctx *gin.Context) {
 		common.Fail(ctx, biz.RequestDataError)
 		return
 	}
-	response, err := rpc.UserClient.Register(context.TODO(), &pb.RegisterParams{})
+	response, err := rpc.UserClient.Register(context.TODO(), &req)
 	if err != nil {
 		// deal error
 		common.Fail(ctx, waError.ToError(err))
 		return
 	}
 	uid := response.Uid
+	if len(uid) == 0 {
+		common.Fail(ctx, biz.Fail)
+		return
+	}
 	logs.Info("uid:%s", uid)
 	claims := jwts.CustomClaims{
 		Uid: uid,

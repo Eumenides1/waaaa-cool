@@ -2,6 +2,7 @@ package waError
 
 import (
 	"errors"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
@@ -19,6 +20,10 @@ func NewError(code int, err error) *Error {
 		Code: code,
 		Err:  err,
 	}
+}
+
+func GrpcError(err *Error) error {
+	return status.Error(codes.Code(err.Code), err.Err.Error())
 }
 
 func ToError(err error) *Error {
