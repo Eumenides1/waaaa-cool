@@ -69,7 +69,7 @@ func (r *Register) register() error {
 		return err
 	}
 	// 心跳检测
-	if r.keepAliveCh, err = r.keepAlive(ctx); err != nil {
+	if r.keepAliveCh, err = r.keepAlive(); err != nil {
 		return err
 	}
 
@@ -99,8 +99,8 @@ func (r *Register) bindLease(ctx context.Context, key, value string) error {
 }
 
 // keepAlive 心跳检测
-func (r *Register) keepAlive(ctx context.Context) (<-chan *clientv3.LeaseKeepAliveResponse, error) {
-	alive, err := r.etcdCli.KeepAlive(ctx, r.leaseId)
+func (r *Register) keepAlive() (<-chan *clientv3.LeaseKeepAliveResponse, error) {
+	alive, err := r.etcdCli.KeepAlive(context.Background(), r.leaseId)
 	if err != nil {
 		logs.Error("keepAlive failed err :%v", err)
 		return alive, err
@@ -121,6 +121,9 @@ func (r *Register) watcher() {
 			// 租约撤销
 			if _, err := r.etcdCli.Revoke(context.Background(), r.leaseId); err != nil {
 				logs.Error("revoke lease failed err :%v", err)
+			}
+			if r.etcdCli != nil {
+				r.etcdCli.Close()
 			}
 			logs.Info("unregister etcd...")
 		case res := <-r.keepAliveCh:
