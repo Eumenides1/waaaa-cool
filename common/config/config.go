@@ -17,7 +17,7 @@ type Config struct {
 	HttpPort   int                     `mapstructure:"httpPort"`
 	AppName    string                  `mapstructure:"appName"`
 	Database   Database                `mapstructure:"db"`
-	Jwt        JwtConf                 `mapstructure:"jwt"`
+	Jwt        JwtConf                 `mapstructure:"jwts"`
 	Grpc       GrpcConf                `mapstructure:"grpc"`
 	Etcd       EtcdConf                `mapstructure:"etcd"`
 	Domain     map[string]Domain       `mapstructure:"domain"`
