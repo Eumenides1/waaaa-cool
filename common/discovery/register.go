@@ -72,7 +72,6 @@ func (r *Register) register() error {
 	if r.keepAliveCh, err = r.keepAlive(); err != nil {
 		return err
 	}
-
 	// 绑定租约
 	data, _ := json.Marshal(r.info)
 	return r.bindLease(ctx, r.info.BuildRegisterKey(), string(data))
@@ -126,12 +125,13 @@ func (r *Register) watcher() {
 				r.etcdCli.Close()
 			}
 			logs.Info("unregister etcd...")
-		case res := <-r.keepAliveCh:
-			if res != nil {
-				if err := r.register(); err != nil {
-					logs.Error("keepAliveCh register failed err :%v", err)
-				}
-			}
+		case <-r.keepAliveCh:
+			// logs.Info("%v", res)
+			//if res != nil {
+			//	if err := r.register(); err != nil {
+			//		logs.Error("keepAliveCh register failed err :%v", err)
+			//	}
+			//}
 		case <-ticker.C:
 			if r.keepAliveCh == nil {
 				if err := r.register(); err != nil {
